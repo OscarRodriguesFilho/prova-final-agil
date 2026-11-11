@@ -135,6 +135,8 @@ textarea { resize: vertical; }
 .empty { text-align: center; padding: 24px 0; }
 
 .obrigatorio { color: var(--baixa); }
+button.perigo { color: var(--baixa); padding: 4px 12px; font-size: 0.85rem; }
+button.perigo:hover { border-color: var(--baixa); }
 
 .registros { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .registro {

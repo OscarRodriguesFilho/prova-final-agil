@@ -27,6 +27,18 @@ public class ApiExceptionHandler {
         return Map.of("error", exception.getMessage());
     }
 
+    @ExceptionHandler(ConflitoException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    Map<String, String> conflito(ConflitoException exception) {
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(NaoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    Map<String, String> naoEncontrado(NaoEncontradoException exception) {
+        return Map.of("error", exception.getMessage());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     Map<String, String> corpoInvalido(HttpMessageNotReadableException exception) {

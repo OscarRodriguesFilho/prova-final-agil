@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import { cadastrar, listar, rolesDoToken } from './api.js'
-import { CAMPOS, RECURSO } from './campos.js'
+import { cadastrar, excluir, listar, rolesDoToken } from './api.js'
+import { ACOES, CAMPOS, RECURSO } from './campos.js'
 
 const formatarData = (iso) => (iso ? String(iso).slice(0, 10).split('-').reverse().join('/') : '')
 const maiuscula = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1)
@@ -9,6 +9,7 @@ const maiuscula = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1)
 function formatarValor(campo, valor) {
   if (valor === null || valor === undefined || valor === '') return '–'
   if (campo.tipo === 'date') return formatarData(valor)
+  if (campo.tipo === 'boolean') return valor === true || valor === 'true' ? 'Sim' : 'Não'
   if (campo.tipo === 'select') return campo.opcoes?.find((o) => String(o.valor) === String(valor))?.rotulo ?? String(valor)
   return String(valor)
 }
@@ -43,6 +44,19 @@ export default function App() {
   useEffect(() => {
     if (isAuthenticated) carregar()
   }, [isAuthenticated, carregar])
+
+  // Usado pelo botão "Excluir" da lista (só aparece se ACOES.excluir = true e o usuário for ADMIN)
+  async function excluirRegistro(id) {
+    if (!window.confirm(`Excluir este ${RECURSO.singular}?`)) return
+    setErro(null)
+    try {
+      const token = await getAccessTokenSilently()
+      await excluir(token, id)
+      setRegistros((lista) => lista.filter((r) => r.id !== id))
+    } catch (e) {
+      setErro(e.message)
+    }
+  }
 
   if (isLoading) {
     return <main className="center"><p className="muted">Carregando…</p></main>
@@ -103,7 +117,13 @@ export default function App() {
                 onCadastrado={(novo) => setRegistros((lista) => [novo, ...lista])}
               />
             )}
-            <Lista registros={registros} carregando={carregando} onAtualizar={() => carregar(true)} />
+            <Lista
+              registros={registros}
+              carregando={carregando}
+              onAtualizar={() => carregar(true)}
+              podeExcluir={isAdmin && ACOES.excluir}
+              onExcluir={excluirRegistro}
+            />
           </div>
         )}
       </main>
@@ -126,11 +146,13 @@ function Formulario({ emailUsuario, onCadastrado }) {
     setEnviando(true)
     try {
       // Monta o JSON com os campos preenchidos; o back-end valida os obrigatórios.
-      const corpo = { emailCriador: emailUsuario }
+      const corpo = { [RECURSO.campoEmailUsuario]: emailUsuario }
       for (const campo of CAMPOS) {
         const valor = form[campo.nome]
         if (valor === '' || valor === null || valor === undefined) continue
-        corpo[campo.nome] = campo.tipo === 'number' ? Number(valor) : valor
+        if (campo.tipo === 'number') corpo[campo.nome] = Number(valor)
+        else if (campo.tipo === 'boolean') corpo[campo.nome] = valor === 'true'
+        else corpo[campo.nome] = valor
       }
       const token = await getAccessTokenSilently()
       const novo = await cadastrar(token, corpo)
@@ -180,6 +202,14 @@ function Campo({ campo, valor, erro, onChange }) {
   let entrada
   if (campo.tipo === 'textarea') {
     entrada = <textarea rows={4} maxLength={campo.maxLength} {...comum} />
+  } else if (campo.tipo === 'boolean') {
+    entrada = (
+      <select {...comum}>
+        <option value="">Selecione…</option>
+        <option value="true">Sim</option>
+        <option value="false">Não</option>
+      </select>
+    )
   } else if (campo.tipo === 'select') {
     entrada = (
       <select {...comum}>
@@ -200,7 +230,7 @@ function Campo({ campo, valor, erro, onChange }) {
   )
 }
 
-function Lista({ registros, carregando, onAtualizar }) {
+function Lista({ registros, carregando, onAtualizar, podeExcluir, onExcluir }) {
   const [busca, setBusca] = useState('')
   const [principal, ...detalhes] = CAMPOS
 
@@ -244,7 +274,14 @@ function Lista({ registros, carregando, onAtualizar }) {
                   </div>
                 ))}
               </dl>
-              {r.emailCriador && <span className="muted small">criado por {r.emailCriador}</span>}
+              <div className="linha">
+                {r[RECURSO.campoEmailUsuario]
+                  ? <span className="muted small">criado por {r[RECURSO.campoEmailUsuario]}</span>
+                  : <span />}
+                {podeExcluir && (
+                  <button className="ghost perigo" onClick={() => onExcluir(r.id)}>Excluir</button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

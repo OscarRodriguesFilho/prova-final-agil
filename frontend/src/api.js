@@ -46,6 +46,16 @@ export function cadastrar(token, dados) {
   return apiFetch(ROTA, token, { method: 'POST', body: JSON.stringify(dados) })
 }
 
+/** DELETE ROTA/{id} — usado pelo botão "Excluir" (ligue ACOES.excluir no campos.js). Resposta 204 vira null. */
+export function excluir(token, id) {
+  return apiFetch(`${ROTA}/${id}`, token, { method: 'DELETE' })
+}
+
+/** PUT ROTA/{id} — pronto para quando o back-end tiver a rota de edição. */
+export function atualizar(token, id, dados) {
+  return apiFetch(`${ROTA}/${id}`, token, { method: 'PUT', body: JSON.stringify(dados) })
+}
+
 /** Lê as roles da claim customizada do access token (a mesma que a API usa). */
 export function rolesDoToken(token) {
   try {
