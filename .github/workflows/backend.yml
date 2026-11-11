@@ -133,7 +133,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           for tentativa in $(seq 1 36); do
-            codigo=$(curl --silent --output /dev/null --write-out '%{http_code}' "http://$EC2_HOST:8080/prova-final-agil" || true)
+            codigo=$(curl --silent --output /dev/null --write-out '%{http_code}' "http://$EC2_HOST:8080/" || true)
             echo "Tentativa $tentativa: HTTP $codigo"
             if [ "$codigo" = "401" ]; then exit 0; fi
             sleep 5
