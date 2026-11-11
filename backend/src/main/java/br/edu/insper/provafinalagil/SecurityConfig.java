@@ -16,7 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
-    private static final String ROTA = RegistroController.ROTA;
+    private static final String ROTA = ArtigoController.ROTA;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, @Value("${app.auth0.roles-claim}") String rolesClaim) throws Exception {
@@ -33,6 +33,7 @@ public class SecurityConfig {
                         // Ex.: .requestMatchers(HttpMethod.DELETE, ROTA + "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, ROTA, ROTA + "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, ROTA, ROTA + "/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, ROTA + "/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)));
         return http.build();

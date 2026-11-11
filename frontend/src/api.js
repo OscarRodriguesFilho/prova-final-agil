@@ -1,7 +1,7 @@
 import { config } from './config.js'
 
-/** Nome da rota no back-end (igual a RegistroController.ROTA). */
-export const ROTA = '/prova-final-agil'
+/** Nome da rota no back-end (igual a ArtigoController.ROTA). */
+export const ROTA = '/artigos'
 
 async function apiFetch(path, token, options = {}) {
   const resposta = await fetch(`${config.apiUrl}${path}`, {
