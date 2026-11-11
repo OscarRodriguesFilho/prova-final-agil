@@ -98,7 +98,7 @@ Anote antes de mexer no código:
 | texto longo | `String` + na Entity `@Column(length = 2000)` | `@NotBlank @Size(max = 2000)` | `"..."` | `'textarea'` |
 | email | `String` | `@NotBlank @Email` | `"a@b.com"` | `'email'` |
 | inteiro (nota, quantidade) | `Integer` | `@NotNull @Min(0) @Max(10)` | `7` | `'number'` (+ `min`, `max`) |
-| decimal / dinheiro | `BigDecimal` + na Entity `@Column(precision = 10, scale = 2)` | `@NotNull @DecimalMin("0.01")` | `19.90` | `'number'` (+ `step: 0.01`) |
+| decimal / dinheiro | `BigDecimal` + na Entity `@Column(precision = 10, scale = 2)` | `@NotNull @DecimalMin("0.01") @Digits(integer = 8, fraction = 2)` | `19.90` | `'number'` (+ `step: 0.01`) |
 | data | `LocalDate` | `@NotNull`, `@FutureOrPresent` ou `@PastOrPresent` | `"2026-11-20"` | `'date'` |
 | hora | `LocalTime` | `@NotNull` | `"14:30"` (a API devolve `"14:30:00"`) | `'time'` |
 | data e hora | `LocalDateTime` | `@NotNull @Future` | `"2026-11-20T14:30"` | `'datetime-local'` |
@@ -165,6 +165,8 @@ gh run watch -R OscarRodriguesFilho/prova-final-agil
 ---
 
 # Receitas (todas testadas no exemplo de Reservas)
+
+> **Validação deste README:** uma IA sem nenhum contexto recebeu só este documento e o enunciado de um "Sistema de Chamados (Help Desk)". O enunciado tinha enum, valor em reais, campo sim/não, USER que cadastra mas só vê os próprios chamados, PUT, DELETE e uma regra 409. O código que ela escreveu compilou e passou nos 14 testes na primeira tentativa, sem nenhuma correção.
 
 Os trechos usam `Reserva` como exemplo. Troque pelo nome da sua entidade.
 
@@ -309,6 +311,9 @@ List<Reserva> findByEmailResponsavelOrderByDataAscHoraInicioAsc(String emailResp
 
 ```java
 public List<Reserva> listarDoUsuario(String email) {
+    if (email == null || email.isBlank()) {
+        return List.of(); // token sem email: não mostra nada
+    }
     return repository.findByEmailResponsavelOrderByDataAscHoraInicioAsc(email.trim().toLowerCase(Locale.ROOT));
 }
 ```
@@ -348,11 +353,21 @@ Tudo fica no `SecurityConfig.java`, uma linha por método:
 | ADMIN e USER | `.requestMatchers(HttpMethod.POST, ROTA, ROTA + "/**").hasAnyRole("ADMIN", "USER")` |
 | qualquer usuário logado | `.requestMatchers(HttpMethod.GET, ROTA, ROTA + "/**").authenticated()` |
 
-**Se o USER também puder cadastrar,** mostre o formulário para ele no front. Em `frontend/src/App.jsx`, troque `{isAdmin && (` (logo antes de `<Formulario`) por:
+**Se o USER também puder cadastrar,** mostre o formulário para ele no front. Em `frontend/src/App.jsx`, troque estas **duas** linhas, logo antes de `<Formulario`:
 
 ```jsx
+          <div className={isAdmin ? 'grid' : ''}>
+            {isAdmin && (
+```
+
+por:
+
+```jsx
+          <div className="grid">
             {(isAdmin || roles.includes('USER')) && (
 ```
+
+A primeira linha põe formulário e lista lado a lado; a segunda mostra o formulário também para USER. Essa mudança foi testada numa simulação com o enunciado "Help Desk".
 
 ### H) Role nova (ex.: `GERENTE`)
 
