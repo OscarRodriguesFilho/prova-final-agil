@@ -7,7 +7,7 @@ Projeto pronto para adaptar no dia da prova: API Spring Boot protegida pelo **Au
 | Front-end | https://prova-final-agil.vercel.app |
 | API | http://ec2-44-197-175-105.compute-1.amazonaws.com:8080/prova-final-agil |
 | Repositório | https://github.com/OscarRodriguesFilho/prova-final-agil |
-| Auth0 | tenant `dev-luk1185ok6ie6gvy.us.auth0.com`, API `https://prova-final-agil`, aplicação SPA `Prova Final Agil Front` |
+| Auth0 | tenant `dev-luk1185ok6ie6gvy.us.auth0.com`, API `https://prova-final-agil`, aplicação SPA `Prova Final Agil Front` (Client ID `qwuqZ3x491Q23LCkjrTK7ssbaqxYdpQD`) |
 
 ```
 Navegador ──login──▶ Auth0 (access token com roles e email)
