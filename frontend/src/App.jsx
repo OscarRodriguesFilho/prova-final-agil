@@ -66,7 +66,6 @@ export default function App() {
     return (
       <main className="center">
         <div className="card narrow login">
-          <span className="logo" aria-hidden>📋</span>
           <h1>{RECURSO.titulo}</h1>
           <p className="muted">Entre com sua conta para ver e cadastrar {RECURSO.plural}.</p>
           {error && <p className="alert">{error.message}</p>}
@@ -82,7 +81,7 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        <div className="brand"><span aria-hidden>📋</span> {RECURSO.titulo}</div>
+        <div className="brand">{RECURSO.titulo}</div>
         <div className="user">
           <div className="user-info">
             <span className="email">{user?.email ?? user?.name}</span>
