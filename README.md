@@ -25,7 +25,8 @@ O front chama `/api/...` no próprio domínio da Vercel e o `vercel.json` repass
 - [x] Entidade genérica `Registro` com campos-modelo e validações (400 com a lista de campos inválidos)
 - [x] Auth0: API, aplicação SPA, roles `ADMIN`/`USER` e Action que coloca roles e email no token
 - [x] 9 testes automatizados (401, 403, 201, 200, 400) com tokens simulados
-- [x] Deploy automático: push na `main` → testes → imagem Docker → EC2
+- [x] Deploy automático do back-end: push na `main` → testes → imagem Docker → EC2
+- [x] Deploy automático do front-end: a Vercel está ligada ao repositório e publica a cada push na `main`
 - [x] Front com login, lista e formulário gerados a partir de um único arquivo (`frontend/src/campos.js`)
 - [x] Secrets e variáveis do GitHub Actions configurados
 
@@ -166,7 +167,7 @@ git push origin main
   ```
 
   Para forçar um deploy sem mudar código: `gh workflow run backend.yml -R OscarRodriguesFilho/prova-final-agil`
-- **Front-end:** se a Vercel estiver ligada ao GitHub, o push publica sozinho. Para publicar na hora, pela CLI, rode na **raiz** do projeto:
+- **Front-end:** a Vercel está ligada ao GitHub, então todo push na `main` publica o front sozinho, em cerca de 30s. Acompanhe na aba *Deployments* do projeto na Vercel. Se precisar publicar sem commit, pela CLI, rode na **raiz** do projeto:
 
   ```powershell
   npx vercel --prod
@@ -235,7 +236,8 @@ A EC2 só tem a porta **8080** aberta. O deploy **para automaticamente container
 
 ## Vercel
 
-- Projeto `prova-final-agil`, configurado pelo `vercel.json` da **raiz**: instala e builda `frontend/`, publica `frontend/dist` e faz o rewrite `/api/*` → EC2.
+- Projeto `prova-final-agil`, **ligado ao repositório do GitHub**: cada push na `main` gera um deploy de produção, e outras branches geram deploys de preview.
+- Configurado pelo `vercel.json` da **raiz**: instala e builda `frontend/`, publica `frontend/dist` e faz o rewrite `/api/*` → EC2.
 - Variáveis de ambiente (Production): `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID` e `VITE_AUTH0_AUDIENCE`. Como são lidas no **build**, depois de mudar alguma é preciso publicar de novo.
 
 ## Problemas comuns
@@ -248,4 +250,4 @@ A EC2 só tem a porta **8080** aberta. O deploy **para automaticamente container
 | `500` no POST depois de trocar campos | Colunas antigas no banco (veja a seção 2) |
 | Deploy não rodou | O push não mexeu em `backend/` → `gh workflow run backend.yml` |
 | Front com "Configuração do Auth0 ausente" | Faltam as variáveis `VITE_*` na Vercel |
-| Mudança no front não aparece | Publique de novo: `npx vercel --prod` na raiz |
+| Mudança no front não aparece | Veja a aba *Deployments* na Vercel; se precisar, `npx vercel --prod` na raiz |
